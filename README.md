@@ -35,7 +35,7 @@ Twitchのストリーマー向けに開発された、音声再生用ブラウ�
 - `./css/reset.css`              - アプリで使用するスタイルシート
 - `./js/voice_trigger.js`        - アプリのUI、機能が実装されたJavaScriptソースファイル
 - `./js/audio_resources.js`      - 再生される音声データが登録されているJavaScriptソースファイル
-- `./js/oj3controls.js`          - UIのHTML要素を保持、アウトプット、初期化、状態の更新を行うための基本ライブラリ
+- `./js/oj3controls.js`          - UIのHTML要素を保持、アウトプット、初期化、状態を更新するための基本ライブラリ
 - `./js/tmi.min.js`              - Twitchのチャットストリームに接続するためのクライアント用ライブラリ
 - `./js/frame.js`                - アプリを別の既存HTMLに埋め込む際に使用するJavaScriptのサンプルコード
 

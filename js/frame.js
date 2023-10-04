@@ -7,20 +7,20 @@ const frame_html = `
 <meta http-equiv="Content-Language" content="ja">
 <link rel="stylesheet" href="./css/reset.css?t=${time_now}"/>
 <link rel="stylesheet" href="./css/style.css?t=${time_now}"/>
-<title>VoiceTriggerHiro - Twitch chat voice activation tool with "Hiro-san" speaking by keywords.</title>
+<title>VoiceTrigger</title>
 </head>
 <body>
   <div id="working_document"></div>
   <script src="./js/tmi.min.js"></script>
   <script src="./js/audio_resources.js?t=${time_now}"></script>
   <script src="./js/oj3control.js?t=${time_now}"></script>
-  <script src="./js/audiotrigger.js?t=${time_now}"></script>
+  <script src="./js/voice_trigger.js?t=${time_now}"></script>
 </body>
 </html>
 `;
 
 /*
-VoiceTriggerHiroを既存のHTMLへ埋め込む場合のサンプルコード
+VoiceTriggerを既存のHTMLへ埋め込む場合のサンプルコード
 
 
 
