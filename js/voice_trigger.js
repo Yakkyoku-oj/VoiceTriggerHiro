@@ -4,7 +4,7 @@
  * Author: [Yakkyoku_oj3]
  * Contact: https://twitter.com/greenhill_pharm
  * Created Date: 2023-09-21
- * Modified Date: 2023-10-04
+ * Modified Date: 2023-10-05
  *
  * Description: The Handler class serves as the primary control unit for managing
  * various functionalities in a web-based application. It is designed to handle
@@ -44,7 +44,7 @@
  *
  * 
  * License: [The MIT License (MIT)]
- * Version: 1.0
+ * Version: 1.0.0
  * 
  * Copyright (c) 2023, Yakkyoku_oj3.
  */
@@ -177,7 +177,7 @@
               const $target_element = app.controls.get_element(target_control_id);
               const $display = app.controls.get_element(target_display_id);
 
-              if ($target_element === null || $display === null) { console.error('here'); return; }
+              if ($target_element === null || $display === null) { return; }
 
               const range_element = app.controls.UI_elements[target_control_id];
               const range_value = range_element.get_numeric_value('value');
@@ -393,7 +393,7 @@
               { target: 'console', remove_class: 'error' },
             ],
           }
-          // HTML要素の定義するためのデータセット
+          // HTML要素を定義するためのデータセット
           this.controls.dataset = {
 
             // 各セクション用のdiv要素、form要素を定義

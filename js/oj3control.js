@@ -238,7 +238,7 @@ Oj3Controls クラスの使用法 :
 
 ファイル: oj3control.js
 著者: Yakkyoku_oj3
-更新日: 2023/10/04
+更新日: 2023/10/05
 バージョン: 1.0.0
 
 */
@@ -461,7 +461,7 @@ class Oj3Controls {
       throw new Error(`Dataset key ${exit_point} does not exist.`);
     }
 
-    this.update_ui_dataset[exit_point].map(item => {
+    this.update_ui_dataset[exit_point].forEach(item => {
 
       // 各アイテムの内容を元にUIクラスを取得
       const $element = (id != null) ? this.UI_elements[id] : this.UI_elements[item['target']];
