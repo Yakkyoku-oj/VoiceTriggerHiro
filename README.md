@@ -3,6 +3,9 @@
 Twitchのストリーマー向けに開発された、音声再生用ブラウザアプリです。  
 任意のチャンネルのチャットストリームを取得し、トリガーワードに一致するパターンが含まれている場合に指定された音声を再生します。
 
+## デモサイト
+- ずんだもんのボイスを登録したプロジェクト [https://yakkyoku-oj.github.io/voice_trigger.js/main.html](https://yakkyoku-oj.github.io/voice_trigger.js/main.html)
+
 ## JSファイルの主な処理内容
 
 - `voice_trigger.js`内に定義されている`dataset`オブジェクトの内容に従って、ブラウザ上にUIを出力します。
