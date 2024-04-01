@@ -117,12 +117,12 @@ Usage of Oj3Controls Class :
 
 File: oj3control.js
 Author: Yakkyoku_oj3
-UpdateDate: 2023/10/04
+UpdateDate: 2024/04/02
 Version: 1.0.0
 License: [The MIT License (MIT)]
 
 =======================================================
-Copyright 2023 Yakkyoku_oj3. All rights reserved.
+Copyright 2023-2024 Yakkyoku_oj3. All rights reserved.
 =======================================================
 
 説明:
@@ -238,10 +238,9 @@ Oj3Controls クラスの使用法 :
 
 ファイル: oj3control.js
 著者: Yakkyoku_oj3
-更新日: 2023/10/05
+更新日: 2023/04/02
 バージョン: 1.0.0
 
-*/
 /**
  * Oj3Controls クラスは、UI関連の操作と管理を担当するクラスです。
  * 
@@ -267,6 +266,8 @@ class Oj3Controls {
    * 
    * @throws {Error} `working_document`が無効なIDの場合、エラーをスローします。
    *
+   * @example
+   * const oj3Controls = new Oj3Controls('app');
    */
   constructor(working_document) {
     // HTML要素の初期化
@@ -283,25 +284,24 @@ class Oj3Controls {
     this.dataset = {};
 
     // UIの出力対象をセット
-    if (typeof (working_document) === 'string' && document.getElementById(working_document) !== undefined) {
+    if (typeof (working_document) === 'string' && document.getElementById(working_document) !== null) {
       this.elements[working_document] = document.getElementById(working_document);
     }
     else {
-      throw new Error("Invalid working document provided.");
+      throw new Error(`Invalid working document provided. Element with ID "${working_document}" not found.`);
     }
   }
 
   /**
    * 指定されたキーに対応するHTML要素を返す
    * @param {string} key - HTML要素に対応するキー
-   * @returns {Element} 対応するHTML要素
-   * @throws {Error} 指定されたキーに対応するHTML要素が存在しない場合にエラーをスロー
+   * @returns {Element|null} 対応するHTML要素。要素が存在しない場合はnull。
+   *
+   * @example
+   * const element = oj3Controls.get_element('myKey');
    */
   get_element(key) {
-    if (this.elements[key] === undefined || !this.elements[key]) {
-      throw new Error(`Element with key ${key} not found.`);
-    }
-    return this.elements[key];
+    return this.elements[key] || null;
   }
 
 
@@ -309,16 +309,17 @@ class Oj3Controls {
    * CSSのルート要素内の変数を変更する
    * @param {string} key - 変更するCSS変数のキー
    * @param {string} value - 設定する値
-   * @throws {Error} 指定されたCSS変数が存在しない場合にエラーをスロー
+   *
+   * @example
+   * oj3Controls.set_css_root_value('--main-color', 'blue');
    */
   set_css_root_value(key, value) {
     const root_style = getComputedStyle(document.documentElement);
     const root = document.querySelector(':root');
 
-    if (!root_style.getPropertyValue(key)) {
-      throw new Error(`CSS variable ${key} does not exist.`);
+    if (root_style.getPropertyValue(key)) {
+      root.style.setProperty(key, value);
     }
-    root.style.setProperty(key, value);
   }
 
   /**
@@ -329,19 +330,16 @@ class Oj3Controls {
    *
    * @param {string} dataset_key - UI要素を生成するために使用するデータセットのキー。
    * 
-   * @throws {Error} 指定されたデータセットキーが存在しない場合、エラーをスローします。
-   * 
    * @example
-   * create_ui_elements("userInfo");
+   * oj3Controls.create_ui_elements('userInfo');
    */
   create_ui_elements(dataset_key) {
-    if (!this.dataset[dataset_key]) {
-      throw new Error(`Dataset key ${dataset_key} does not exist.`);
-    }
-    try {
-      this.output_details_html(this.dataset[dataset_key]);
-    } catch (error) {
-      console.error(`Error creating UI elements for ${dataset_key}: `, error);
+    if (this.dataset[dataset_key]) {
+      try {
+        this.output_details_html(this.dataset[dataset_key]);
+      } catch (error) {
+        console.error(`Error creating UI elements for ${dataset_key}: `, error);
+      }
     }
   }
 
@@ -349,19 +347,18 @@ class Oj3Controls {
    * HTMLの詳細を出力するメソッド。
    * 
    * @param {Array} details - HTML要素の詳細を含むオブジェクトの配列。
-   * @throws {Error} 引数'details'が配列でない場合、エラーがスローされます。
    * 
    * @example
    * const details = [
    *   { text: 'Hello', parent: 'body', prepend: true },
    *   { text: 'World', parent: 'body', prepend: false }
    * ];
-   * output_details_html(details);
+   * oj3Controls.output_details_html(details);
    */
   output_details_html(details) {
 
-    if (Array.isArray(details) === false) { 
-      throw new Error(`'details' is not an array`);
+    if (!Array.isArray(details)) { 
+      return;
     }
 
     details.forEach((item) => {
@@ -375,12 +372,14 @@ class Oj3Controls {
       // prepend属性が定義されている場合、parent要素の先頭に追加する
       const $parent = this.get_element(item['parent']);
 
-      if (item['prepend'] !== undefined && item['prepend']) {
-        $parent.prepend(ui_item.html_element);
-      }
-      // prepend属性が定義されていない場合、parent要素の末尾に追加する
-      else {
-        $parent.appendChild(ui_item.html_element);
+      if ($parent) {
+        if (item['prepend'] !== undefined && item['prepend']) {
+          $parent.prepend(ui_item.html_element);
+        }
+        // prepend属性が定義されていない場合、parent要素の末尾に追加する
+        else {
+          $parent.appendChild(ui_item.html_element);
+        }
       }
 
       // states属性にid属性が含まれている場合、値をHTML要素のidにセットする
@@ -396,15 +395,14 @@ class Oj3Controls {
    * UIの初期化を行うメソッド。
    * 
    * @param {Object} app - アプリケーションのメインオブジェクト。
-   * @throws {Error} this.datasetに'ui_controls'キーが存在しない場合、エラーがスローされます。
    * 
    * @example
    * const app = { アプリケーションの詳細  };
-   * init_ui(app);
+   * oj3Controls.init_ui(app);
   */
   init_ui(app) {
-    if (this.dataset['ui_controls'] === undefined) {
-      throw new Error(`Dataset key ui_controls does not exist.`);
+    if (!this.dataset['ui_controls']) {
+      return;
     }
 
     this.dataset['ui_controls'].forEach(item => {
@@ -423,16 +421,12 @@ class Oj3Controls {
               const event_to_listen = action['listen'];
               const method_to_execute = this.control_methods[action['require']];
 
-              // method_to_execute()はこの時点で即時実行されるが、this.control_methodsに定義されているメソッドは全て以下の形式となっているため
-              // 問題ない
-              // method : (app) => {
-              //   return (event) => { /* 処理内容 */ }
-              // }
-              $element.addEventListener(event_to_listen, method_to_execute(app));
+              if (method_to_execute) {
+                $element.addEventListener(event_to_listen, method_to_execute(app));
+              }
 
             } catch (err) {
-              console.error(`An error occurred in the definition of event handler ${action['listen']} of ${$element.id}.`);
-              return;
+              console.error(`An error occurred in the definition of event handler ${action['listen']} of ${$element.id}.`, err);
             }
           })
         })
@@ -445,20 +439,18 @@ class Oj3Controls {
    *
    * @param {string} exit_point - UI更新のトリガーとなるExitポイントの識別子。
    * @param {string|null} [id=null] - 更新対象となるUIクラスのID。指定しない場合は、Exitポイントで定義された対象が使われます。
-   * @throws {Error} 指定されたExitポイントがデータセットに存在しない場合、エラーがスローされます。
    *
    * @example
    * // exit_pointとidを指定してUIを更新
-   * update_ui('some_exit_point', 'some_id');
+   * oj3Controls.update_ui('some_exit_point', 'some_id');
    * 
    * // exit_pointのみを指定してUIを更新
-   * update_ui('some_exit_point');
+   * oj3Controls.update_ui('some_exit_point');
    */
   update_ui(exit_point, id = null) {
 
-    // 指定されたExitポイントが存在しない場合はエラー
-    if (this.update_ui_dataset[exit_point] === undefined) { 
-      throw new Error(`Dataset key ${exit_point} does not exist.`);
+    if (!this.update_ui_dataset[exit_point]) { 
+      return;
     }
 
     this.update_ui_dataset[exit_point].forEach(item => {
@@ -466,14 +458,16 @@ class Oj3Controls {
       // 各アイテムの内容を元にUIクラスを取得
       const $element = (id != null) ? this.UI_elements[id] : this.UI_elements[item['target']];
 
-      // 対象のUIクラスのdetailsをExitポイントのインスタンスで上書き
-      $element.details = item;
+      if ($element) {
+        // 対象のUIクラスのdetailsをExitポイントのインスタンスで上書き
+        $element.details = item;
 
-      // 各アイテムのstatesをHTML要素に適用する
-      $element.set_states();
+        // 各アイテムのstatesをHTML要素に適用する
+        $element.set_states();
 
-      // 画面上のHTML要素に状態を反映する
-      this.elements[item['target']] = $element.html_element;
+        // 画面上のHTML要素に状態を反映する
+        this.elements[item['target']] = $element.html_element;
+      }
     })
   }
 }
@@ -557,12 +551,12 @@ UIクラスのコンストラクタの第一引数に使用されるオブジェ
 
 File: ui.js
 Author: Yakkyoku_oj3
-UpdateDate: 2023/10/04
+UpdateDate: 2024/04/02
 Version: 1.0.0
 License: [The MIT License (MIT)]
 
 =======================================================
-Copyright 2023 Yakkyoku_oj3. All rights reserved.
+Copyright 2023-2024 Yakkyoku_oj3. All rights reserved.
 =======================================================
 
 */
@@ -580,13 +574,12 @@ class UI {
    * 
    * @example
    * // detailsオブジェクトのみを使用してインスタンスを生成
-   * new SomeClass({ key: 'value' });
+   * new UI({ key: 'value' });
    * 
    * // detailsオブジェクトとHTML要素を使用してインスタンスを生成
-   * new SomeClass({ key: 'value' }, someHTMLElement);
+   * new UI({ key: 'value' }, someHTMLElement);
    */
   constructor(details, element = null) {
-
     if (typeof details !== 'object' || details === null) {
       throw new Error("Invalid details object provided.");
     }
@@ -617,11 +610,10 @@ class UI {
    * インスタンスが持つ`states`オブジェクトに基づき、関連するHTML要素の状態を設定します。
    *
    * @throws {Error} `states`プロパティがオブジェクトでない、またはnullの場合、エラーがスローされます。
-   * @throws {Error} 属性の設定または更新中に問題が発生した場合、`states_error`メソッドがエラーをスローします。
    *
    * @example
    * // set_statesメソッドを呼び出し
-   * instance.set_states();
+   * ui.set_states();
    */
   set_states() {
     if (typeof this.states !== 'object' || this.states === null) {
@@ -633,7 +625,7 @@ class UI {
           this.html_element[key] = value;
         }
         catch (err) {
-          this.states_error(key, err);
+          console.error(`Failed to set state '${key}':`, err);
         }
       }
       else {
@@ -641,7 +633,7 @@ class UI {
           this.html_element.setAttribute(key, value);
         }
         catch (err) {
-          this.states_error(key, err);
+          console.error(`Failed to set attribute '${key}':`, err);
         }
       }
     })
@@ -660,34 +652,31 @@ class UI {
    * 
    * @example
    * // 'height'属性の数値を取得
-   * const height = instance.get_numeric_value('height');
+   * const height = ui.get_numeric_value('height');
    */
   get_numeric_value(attribute_name) {
-
     if (typeof attribute_name !== 'string') {
       throw new Error("Invalid attribute name.");
     }
 
-    // HTML要素が未定義の場合はNullを返す
+    // HTML要素が未定義の場合はnullを返す
     if (this.html_element === undefined) {
       console.error("HTML element is undefined.");
       return null;
     }
 
-    // HTML要素を継承
     const $target_element = this.html_element;
 
-    // HTML要素内にattribute_nameが存在しないか、未定義の場合はNullを返す
+    // HTML要素内にattribute_nameが存在しないか、未定義の場合はnullを返す
     if (!$target_element[attribute_name] || $target_element[attribute_name] === null) {
       console.error(`Attribute ${attribute_name} does not exist.`);
       return null;
     }
 
-    // HTML要素から属性値を取得し、数値に変換
     const value_str = $target_element[attribute_name];
     const value_number = parseFloat(value_str);
 
-    // 変換後NaNになった場合はNullを返す
+    // 変換後NaNになった場合はnullを返す
     if (isNaN(value_number)) {
       console.error(`Failed to convert attribute ${attribute_name} to a number.`);
       return null;
@@ -707,13 +696,12 @@ class UI {
    *
    * @example
    * // クラスを追加
-   * instance.update_class('add', 'active');
+   * ui.update_class('add', 'active');
    * 
    * // クラスを削除
-   * instance.update_class('remove', 'active');
+   * ui.update_class('remove', 'active');
    */
   update_class(operation, class_name) {
-
     if (!['add', 'remove'].includes(operation)) {
       throw new Error("Invalid operation. Operation should be 'add' or 'remove'.");
     }
@@ -742,10 +730,10 @@ class UI {
    *
    * @example
    * // 'div'要素を作成
-   * instance.create('div');
+   * ui.create('div');
    * 
    * // 'input'要素を作成
-   * instance.create('input');
+   * ui.create('input');
    */
   create(element_type) {
     if (typeof element_type !== 'string') {
@@ -768,10 +756,10 @@ class UI {
    *
    * @example
    * // 'value'が数値で、html_element.valueも定義されている場合
-   * instance.is_valid_value();  // trueを返す
+   * ui.is_valid_value();  // trueを返す
    *
    * // 'value'が未定義である場合
-   * instance.is_valid_value();  // falseを返す
+   * ui.is_valid_value();  // falseを返す
    */
   is_valid_value() {
     return (
@@ -779,15 +767,5 @@ class UI {
       (isNaN(this.details['value']) === false || typeof (this.details['value']) === 'string') &&
       this.html_element.value !== undefined
     )
-  }
-
-  /**
-   * set_status()メソッドにおいて状態設定中にエラーが発生した場合のエラーメッセージを出力します。
-   * @param {string} key - エラーが発生した状態のキー。
-   * @param {Error} err - キャッチされたエラー。
-   */
-  states_error(key, err) {
-    console.error(`Invalid dataset : An error occurred when applying states in the dataset to HTML elements.\nstates key name = ${key}`);
-    console.error(err);
   }
 }
